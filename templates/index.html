@@ -7,9 +7,17 @@
 {% block body %}
 <div class="content">
     <h1 style="text-align: center">Your Wallets</h1>
+
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning" style="background-color: #77DD77; font-size: 17px; margin-top: 10px; text-align: center">
+            {{ message }}
+        </div>
+    {% endfor %}
+
     {% if tasks|length < 1 %}
     <h4 style="text-align: center">There are no Wallets, Create One Below</h4>
     {% else %}
+    <br>
     <table>
         <tr>
             <th>Name</th>
@@ -20,7 +28,7 @@
         {% for task in tasks %}
             <tr>
                 <td>{{ task.content }}</td>
-                <td>{{ task.balance }}</td>
+                <td>${{ task.balance }}</td>
                 <td>{{ task.bank_name }}</td>
 
                     {% if task.status == 'Active' %}
@@ -30,9 +38,7 @@
                     {% endif %}
                 
                 <td>
-                    <a href="/delete/{{task.id}}">Delete</a>
-                    <br>
-                    <a href="/update/{{task.id}}">Update</a>
+                    <a href="/update/{{task.id}}">Modify</a>
                 </td>
             </tr>
         {% endfor %}
@@ -42,7 +48,7 @@
     <div class="form">
         <form action="/" method="POST">
             <input type="text" name="content" id="content">
-            <input type="submit" value="Add Task">
+            <input style="margin-bottom: 10px" type="submit" value="Add Wallet">
         </form>
     </div>
 </div>

@@ -8,49 +8,76 @@
 <div class="content">
     <h1 style="text-align: center"><b><i>{{task.content}}</i></b> Wallet</h1>
 
+    <h3 style="text-align: center"><a href="/"><i>Home</i></a></h3>
+
     <h2 style="text-align: center">Current Balance ${{task.balance}}</h2>
+
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning" style="background-color: #FFFF00; font-size: 17px; margin-top: 10px; text-align: center">
+            {{ message }}
+        </div>
+    {% endfor %}
 
     <ul>
         <li> Wallet Name
             <span style="text-align: left">
                 <div class="form">
                 <form action="/update/{{task.id}}" method="POST">
-                    <input type="text" name="content" id="content" value="{{task.content}}">
+                    <input type="text" name="content" id="content" placeholder="{{task.content}}">
                     <input type="submit" value="Update">
                 </form>
                 </div>
             </span>
         </li>
         <br>
-        <li> Load Money
-            <span style="text-align: left">
-                <div class="form">
-                <form action="/load_money/{{task.id}}" method="POST">
-                    <input type="text" name="balance" id="balance" value="{{task.balance}}">
-                    <input type="submit" value="Load Money">
-                </form>
-                </div>
-            </span>
-        </li>
-        <br>
-        <li> Bank Name (<b>Current : <i>{{task.bank_name}}</i></b>)
-            <span style="text-align: left">
-                <div class="form">                    
-                <form action="/update_bank_name/{{task.id}}" method="POST">
-                    <input list="b_names" name="bank_name" id="bank_name">
-                    <datalist id="b_names">
-                      <option value="IDFC First Bank">
-                      <option value="ICICI Bank">
-                      <option value="Canara Bank">
-                      <option value="SBM Bank">
-                      <option value="Axis Bank">
-                    </datalist>
-                    <input type="submit" value="Update">
-                  </form>
-                </div>
-            </span>
-        </li>
-        <br>
+                
+        <!-- ## A bank should be first linked inorder to Load or Withdraw Money form Wallet -->
+        {% if task.bank_name == "" %} 
+        {% else %}
+            <li> Load Money
+                <span style="text-align: left">
+                    <div class="form">
+                    <form action="/load_money/{{task.id}}" method="POST">
+                        <input type="number" name="balance" id="balance" value=0>
+                        <input type="submit" value="Load Money">
+                    </form>
+                    </div>
+                </span>
+            </li>
+            <br>
+            <li> Withdraw Money
+                <span style="text-align: left">
+                    <div class="form">
+                    <form action="/withdraw_money/{{task.id}}" method="POST">
+                        <input type="number" name="balance" id="balance" value=0>
+                        <input type="submit" value="Withdraw Money">
+                    </form>
+                    </div>
+                </span>
+            </li>
+            <br>
+        {% endif %}
+
+
+            <li> Bank Name (<b>Current : <i>{{task.bank_name}}</i></b>)
+                <span style="text-align: left">
+                    <div class="form">                    
+                    <form action="/update_bank_name/{{task.id}}" method="POST">
+                        <input list="b_names" name="bank_name" id="bank_name">
+                        <datalist id="b_names">
+                        <option value="IDFC First Bank">
+                        <option value="ICICI Bank">
+                        <option value="Canara Bank">
+                        <option value="SBM Bank">
+                        <option value="Axis Bank">
+                        </datalist>
+                        <input type="submit" value="Update">
+                    </form>
+                    </div>
+                </span>
+            </li>
+            <br>
+        
         <li> Status (<b>Current : <i>{{task.status}}</i></b>)
             
             {% if task.status == 'Active' %}
@@ -66,10 +93,12 @@
             {% endif %}
         </li>
 
-
-
       </ul>
 
+      <form action="/delete/{{task.id}}" method="POST">
+        <input type="hidden" name="Delete" id="delete" value="delete">
+        <input style="background-color: #DC143C; font-size: 20px; margin-top: 10px; width: 400px; margin-bottom: 10px" type="submit" value="Delete Wallet">
+      </form> 
     
 </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -7,8 +7,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 engine  = SQLAlchemy(app).engine
 
+app.secret_key = b'_324342938749$%&&^$%4'
 
-class Todo(db.Model):
+
+class Wallets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False) # Name Of The Wallet
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
@@ -24,7 +26,7 @@ class Todo(db.Model):
 def index():
     if request.method == 'POST':
         task_content = request.form['content']
-        new_task = Todo(content=task_content)
+        new_task = Wallets(content=task_content)
 
         try:
             db.session.add(new_task)
@@ -34,15 +36,16 @@ def index():
             return 'There was an issue adding your task'
 
     else:
-        tasks = Todo.query.order_by(Todo.date_created).all()
+        tasks = Wallets.query.order_by(Wallets.date_created).all()
         return render_template('index.html', tasks=tasks)
 
 
-@app.route('/delete/<int:id>')
+@app.route('/delete/<int:id>', methods=['GET', 'POST'])
 def delete(id):
-    task_to_delete = Todo.query.get_or_404(id)
+    task_to_delete = Wallets.query.get_or_404(id)
 
     try:
+        flash(task_to_delete.content +" Deleted Successfully")
         db.session.delete(task_to_delete)
         db.session.commit()
         return redirect('/')
@@ -51,7 +54,7 @@ def delete(id):
 
 @app.route('/update/<int:id>', methods=['GET', 'POST'])
 def update(id):
-    task = Todo.query.get_or_404(id)
+    task = Wallets.query.get_or_404(id)
 
     if request.method == 'POST':
         task.content = request.form['content']
@@ -60,14 +63,14 @@ def update(id):
             db.session.commit()
             return redirect('/')
         except:
-            return 'There was an issue updating your task'
+            return 'There was an issue updating your wallet name'
 
     else:
         return render_template('update.html', task=task)
  
 @app.route('/update_bank_name/<int:id>', methods=['GET', 'POST'])   
 def update_bank_name(id):
-    task = Todo.query.get_or_404(id)
+    task = Wallets.query.get_or_404(id)
 
     if request.method == 'POST':
         task.bank_name = request.form['bank_name']
@@ -76,30 +79,58 @@ def update_bank_name(id):
             db.session.commit()
             return redirect('/')
         except:
-            return 'There was an issue updating your task'
+            return 'There was an issue updating your Bank Name'
 
     else:
         return render_template('update.html', task=task)
  
 @app.route('/load_money/<int:id>', methods=['GET', 'POST'])   
 def load_money(id):
-    task = Todo.query.get_or_404(id)
+    task = Wallets.query.get_or_404(id)
 
-    if request.method == 'POST':
-        task.balance = request.form['balance']
+    if request.method == 'POST' and task.status == "Active":
+        task.balance = str(int(task.balance) + abs(int(request.form['balance'])))
 
         try:
             db.session.commit()
+            flash("$ "+ str(abs(int(request.form['balance']))) +" Loaded to "+ task.content + " Successfully")
             return redirect('/')
         except:
-            return 'There was an issue updating your task'
+            return 'There was an issue while loading wallet'
 
     else:
+        flash('Cannot Complete Transaction When The Card Is Blocked')
+        return render_template('update.html', task=task)
+    
+@app.route('/withdraw_money/<int:id>', methods=['GET', 'POST'])   
+def withdraw_money(id):
+    task = Wallets.query.get_or_404(id)
+
+    if request.method == 'POST' and task.status == "Active":
+        
+        after_wd = int(task.balance) - int(request.form['balance'])
+        
+        if after_wd < 0 :
+            flash('Insufficients Funds')
+            return render_template('update.html', task=task)
+            
+        else:            
+            task.balance = str(int(task.balance) - abs(int(request.form['balance'])))
+
+        try:
+            db.session.commit()
+            flash("$ "+ str(abs(int(request.form['balance']))) +" Withdrawn from "+ task.content + " Successfully")
+            return redirect('/')
+        except:
+            return 'There was an issue while withdrawing from the wallet'
+
+    else:
+        flash('Cannot Complete Transaction When The Card Is Blocked')
         return render_template('update.html', task=task)
     
 @app.route('/status_update/<int:id>', methods=['GET', 'POST'])   
 def status_update(id):
-    task = Todo.query.get_or_404(id)
+    task = Wallets.query.get_or_404(id)
 
     if request.method == 'POST':
         task.status = request.form['status']
@@ -108,7 +139,7 @@ def status_update(id):
             db.session.commit()
             return redirect('/')
         except:
-            return 'There was an issue updating your task'
+            return 'There was an issue updating your status'
 
     else:
         return render_template('update.html', task=task)
