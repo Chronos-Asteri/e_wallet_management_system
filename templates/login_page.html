@@ -27,9 +27,5 @@
 
         <h3 style="text-align: center; margin-bottom: 10px;"><a href="{{url_for('register')}}"><i>New User? Register Here</i></a></h3>
 
-        {% if current_user.is_authenticated %}
-        <h3 style="text-align: center; margin-bottom: 10px;"><a href="{{url_for('logout')}}"><i>Logout</i></a></h3>
-        {% endif %}
-
 </div>
 {% endblock %}

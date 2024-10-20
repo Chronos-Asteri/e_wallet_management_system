@@ -1,7 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from flask_login import UserMixin, login_user, login_required, logout_user, LoginManager
+from flask_login import UserMixin, login_user, login_required, logout_user, LoginManager, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
@@ -22,11 +22,11 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
-
-
-class Wallets(db.Model):
+    return User.query.get(int(user_id))    
+    
+class Wallet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
     content = db.Column(db.String(200), nullable=False) # Name Of The Wallet
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default="Active")
@@ -34,12 +34,13 @@ class Wallets(db.Model):
     bank_name = db.Column(db.String(100), default="")
 
     def __repr__(self):
-        return '<Task %r>' % self.id
+        return '<Wallet %r>' % self.id
     
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
+
     
     
 class RegisterForm(FlaskForm):
@@ -66,6 +67,8 @@ class LoginForm(FlaskForm):
                              InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
 
     submit = SubmitField('Login')
+   
+## Login // Logout // Register
     
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -98,11 +101,14 @@ def register():
     return render_template('register_page.html', form=form)
 
 
+## Management Functions
+
 @app.route('/', methods=['POST', 'GET'])
+@login_required
 def index():
     if request.method == 'POST':
         task_content = request.form['content']
-        new_task = Wallets(content=task_content)
+        new_task = Wallet(user_id=current_user.id, content=task_content)
 
         try:
             db.session.add(new_task)
@@ -112,13 +118,14 @@ def index():
             return 'There was an issue adding your task'
 
     else:
-        tasks = Wallets.query.order_by(Wallets.date_created).all()
+        tasks = Wallet.query.filter_by(user_id=current_user.id).order_by(Wallet.date_created).all()
         return render_template('index.html', tasks=tasks)
 
 
 @app.route('/delete/<int:id>', methods=['GET', 'POST'])
+@login_required
 def delete(id):
-    task_to_delete = Wallets.query.get_or_404(id)
+    task_to_delete = Wallet.query.filter_by(user_id=current_user.id, id=id).first()
 
     try:
         flash(task_to_delete.content +" Deleted Successfully")
@@ -129,8 +136,9 @@ def delete(id):
         return 'There was a problem deleting that task'
 
 @app.route('/update/<int:id>', methods=['GET', 'POST'])
+@login_required
 def update(id):
-    task = Wallets.query.get_or_404(id)
+    task = Wallet.query.filter_by(user_id=current_user.id, id=id).first()
 
     if request.method == 'POST':
         task.content = request.form['content']
@@ -145,8 +153,9 @@ def update(id):
         return render_template('update.html', task=task)
  
 @app.route('/update_bank_name/<int:id>', methods=['GET', 'POST'])   
+@login_required
 def update_bank_name(id):
-    task = Wallets.query.get_or_404(id)
+    task = Wallet.query.filter_by(user_id=current_user.id, id=id).first()
 
     if request.method == 'POST':
         task.bank_name = request.form['bank_name']
@@ -160,9 +169,10 @@ def update_bank_name(id):
     else:
         return render_template('update.html', task=task)
  
-@app.route('/load_money/<int:id>', methods=['GET', 'POST'])   
+@app.route('/load_money/<int:id>', methods=['GET', 'POST'])
+@login_required   
 def load_money(id):
-    task = Wallets.query.get_or_404(id)
+    task = Wallet.query.filter_by(user_id=current_user.id, id=id).first()
 
     if request.method == 'POST' and task.status == "Active":
         task.balance = str(int(task.balance) + abs(int(request.form['balance'])))
@@ -178,9 +188,10 @@ def load_money(id):
         flash('Cannot Complete Transaction When The Card Is Blocked')
         return render_template('update.html', task=task)
     
-@app.route('/withdraw_money/<int:id>', methods=['GET', 'POST'])   
+@app.route('/withdraw_money/<int:id>', methods=['GET', 'POST']) 
+@login_required 
 def withdraw_money(id):
-    task = Wallets.query.get_or_404(id)
+    task = Wallet.query.filter_by(user_id=current_user.id, id=id).first()
 
     if request.method == 'POST' and task.status == "Active":
         
@@ -204,9 +215,10 @@ def withdraw_money(id):
         flash('Cannot Complete Transaction When The Card Is Blocked')
         return render_template('update.html', task=task)
     
-@app.route('/status_update/<int:id>', methods=['GET', 'POST'])   
+@app.route('/status_update/<int:id>', methods=['GET', 'POST']) 
+@login_required  
 def status_update(id):
-    task = Wallets.query.get_or_404(id)
+    task = Wallet.query.filter_by(user_id=current_user.id, id=id).first()
 
     if request.method == 'POST':
         task.status = request.form['status']
