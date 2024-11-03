@@ -102,6 +102,33 @@ def register():
 
 
 ## Management Functions
+@app.route('/admin', methods=['POST', 'GET'])
+@login_required
+def admin():
+    id = current_user.id
+    
+    if id == 1:
+        tasks = User.query.order_by(User.id).all()
+        return render_template('admin.html', tasks=tasks)
+    else:
+        flash("Only the admin as access to 'Admin' page")
+        tasks = Wallet.query.filter_by(user_id=current_user.id).order_by(Wallet.date_created).all()
+        return redirect(url_for('index'))
+
+
+
+@app.route('/user_details/<int:id>', methods=['POST', 'GET'])
+@login_required
+def user_details(id):
+    
+    if current_user.id == 1:
+        tasks = Wallet.query.filter_by(user_id=id).order_by(Wallet.date_created).all()
+        return render_template('user_details.html', tasks=tasks) 
+    else:
+        flash("Only the admin as access to 'Admin' page")
+        return redirect(url_for('index'))
+    
+      
 
 @app.route('/', methods=['POST', 'GET'])
 @login_required
