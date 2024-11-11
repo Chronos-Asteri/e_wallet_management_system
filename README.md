@@ -2,8 +2,8 @@
 Purpose - Software Engineering Lab Practical
 
 ```
-**Name -> M K Lino Roshaan**\
-**Roll No -> 2K22/MC/87**
+Name -> M K Lino Roshaan
+Roll No -> 2K22/MC/87
 ```
 
 ## Prerequisites
