@@ -1,8 +1,10 @@
 # e_wallet_management_system
 Purpose - Software Engineering Lab Practical
 
+```
 **Name -> M K Lino Roshaan**\
 **Roll No -> 2K22/MC/87**
+```
 
 ## Prerequisites
 1. miniconda - Version 23.1.0 [[Download](https://docs.anaconda.com/miniconda/miniconda-install/)]
