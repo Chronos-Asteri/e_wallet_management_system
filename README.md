@@ -20,7 +20,7 @@ Roll No -> 2K22/MC/87
 ## Data Flow Diagrams
 
 ### DFD Level Zero
-<kbd> <img src="./images/DFD_level_0.png" /> </kbd>
+<kbd> <img src="./images/DFD_level_0.png" width="70%" /> </kbd>
 
 ### DFD Level Zero
-<kbd> <img src="./images/data_flow_level_1.png" /> </kbd>
+<kbd> <img src="./images/data_flow_level_1.png" width="70%" /> </kbd>
