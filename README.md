@@ -16,4 +16,11 @@ Roll No -> 2K22/MC/87
 2. `conda activate e_wallet`
 3. `pip install -r requirements.txt`
 4. `flask run`
-   
+
+## Data Flow Diagrams
+
+### DFD Level Zero
+<kbd> <img src="./images/DFD_level_0.png" /> </kbd>
+
+### DFD Level Zero
+<kbd> <img src="./images/data_flow_level_1.png" /> </kbd>
