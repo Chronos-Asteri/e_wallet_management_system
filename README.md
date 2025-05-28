@@ -6,6 +6,12 @@ Name -> M K Lino Roshaan
 Roll No -> 2K22/MC/87
 ```
 
+### Index:
+- [Prerequisites](#prerequisites)
+- [Local Deployment](#local-deployment)
+- [SDE Diagrams](#sde-diagrams)
+- [Screenshots](#screenshots)
+
 ## Prerequisites
 1. miniconda - Version 23.1.0 [[Download](https://docs.anaconda.com/miniconda/miniconda-install/)]
 2. Python - Version 3.11 [[Download](https://www.python.org/downloads/)]
